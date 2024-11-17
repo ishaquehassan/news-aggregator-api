@@ -2,14 +2,25 @@
 
 namespace App\Services;
 
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
+use App\Contracts\Auth\AuthenticationInterface;
+use App\Contracts\Auth\HashServiceInterface;
+use App\Contracts\Auth\PasswordResetRepositoryInterface;
+use App\Contracts\Auth\TokenServiceInterface;
+use App\Contracts\Auth\UserRepositoryInterface;
+use RuntimeException;
 
-class AuthService
+readonly class AuthService
 {
+    public function __construct(
+        private UserRepositoryInterface          $userRepository,
+        private HashServiceInterface             $hash,
+        private TokenServiceInterface            $tokenService,
+        private AuthenticationInterface          $auth,
+        private PasswordResetRepositoryInterface $passwordResetRepository
+    )
+    {
+    }
+
     /**
      * Register a new user and return the user data
      *
@@ -18,11 +29,11 @@ class AuthService
      */
     public function registerUser(array $data): array
     {
-        $data['password'] = bcrypt($data['password']);
-        $user = User::create($data);
+        $data['password'] = $this->hash->make($data['password']);
+        $user = $this->userRepository->create($data);
 
         return [
-            'token' => $user->createToken('MyApp')->plainTextToken,
+            'token' => $this->tokenService->create($user, 'MyApp'),
             'name' => $user->name,
         ];
     }
@@ -36,10 +47,10 @@ class AuthService
      */
     public function loginUser(string $email, string $password): ?array
     {
-        if (Auth::attempt(['email' => $email, 'password' => $password])) {
-            $user = Auth::user();
+        if ($this->auth->attempt(['email' => $email, 'password' => $password])) {
+            $user = $this->auth->user();
             return [
-                'token' => $user->createToken('MyApp')->plainTextToken,
+                'token' => $this->tokenService->create($user, 'MyApp'),
                 'name' => $user->name,
             ];
         }
@@ -55,13 +66,14 @@ class AuthService
      */
     public function getPasswordResetToken(string $email): string
     {
-        $user = User::where('email', $email)->first();
-        $token = Password::createToken($user);
+        $user = $this->userRepository->findByEmail($email);
 
-        DB::table('password_reset_tokens')->updateOrInsert(
-            ['email' => $user->email],
-            ['email' => $user->email, 'token' => $token, 'created_at' => now()]
-        );
+        if (!$user) {
+            throw new RuntimeException('User not found');
+        }
+
+        $token = $this->tokenService->createPasswordResetToken($user);
+        $this->passwordResetRepository->storeToken($email, $token);
 
         return $token;
     }
@@ -70,21 +82,20 @@ class AuthService
      * Reset user password
      *
      * @param string $email
-     * @param string $token
      * @param string $password
+     * @param string $token
      * @return bool
      */
     public function resetPassword(string $email, string $password, string $token): bool
     {
-        $passwordTokenData = DB::table('password_reset_tokens')->where([
-            'email' => $email,
-            'token' => $token
-        ])->first();
+        $tokenData = $this->passwordResetRepository->findToken($email, $token);
 
-        if ($passwordTokenData) {
-            $user = User::where('email', $email)->first();
-            $user->forceFill(['password' => bcrypt($password)])->save();
-            DB::table('password_reset_tokens')->where('email', $email)->delete();
+        if ($tokenData) {
+            $user = $this->userRepository->findByEmail($email);
+            $this->userRepository->update($user, [
+                'password' => $this->hash->make($password)
+            ]);
+            $this->passwordResetRepository->deleteToken($email);
 
             return true;
         }
@@ -95,16 +106,17 @@ class AuthService
     /**
      * Change the user's password
      *
-     * @param \App\Models\User $user
+     * @param object $user
      * @param string $currentPassword
      * @param string $newPassword
      * @return bool
      */
-    public function changePassword(User $user, string $currentPassword, string $newPassword): bool
+    public function changePassword(object $user, string $currentPassword, string $newPassword): bool
     {
-        // Check if the current password is correct
-        if (Hash::check($currentPassword, $user->password)) {
-            $user->forceFill(['password' => bcrypt($newPassword)])->save();
+        if ($this->hash->check($currentPassword, $user->password)) {
+            $this->userRepository->update($user, [
+                'password' => $this->hash->make($newPassword)
+            ]);
             return true;
         }
 
@@ -114,25 +126,25 @@ class AuthService
     /**
      * Update the user's profile
      *
-     * @param \App\Models\User $user
+     * @param object $user
      * @param array $data
      * @return bool
      */
-    public function updateProfile(User $user, array $data): bool
+    public function updateProfile(object $user, array $data): bool
     {
-        // Update user information (e.g., name, email)
-        $user->update($data);
-        return true;
+        return $this->userRepository->update($user, $data);
     }
 
     /**
      * Logout user
      *
-     * @param \App\Models\User $user
+     * @param object $user
      * @return void
      */
-    public function logoutUser(User $user): void
+    public function logoutUser(object $user): void
     {
-        $user->currentAccessToken()->delete();
+        if (method_exists($user, 'currentAccessToken') && $user->currentAccessToken()) {
+            $user->currentAccessToken()->delete();
+        }
     }
 }
