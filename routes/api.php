@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\Articles\ArticleController;
 use App\Http\Controllers\API\Auth\ApiAuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,4 +18,7 @@ Route::controller(ApiAuthController::class)->prefix("auth")->group(function(){
     });
 });
 
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::apiResource('articles', ArticleController::class);
+});
 
