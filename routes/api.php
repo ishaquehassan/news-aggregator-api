@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\Articles\ArticleController;
 use App\Http\Controllers\API\Auth\ApiAuthController;
+use App\Http\Controllers\API\UserPreferences\UserPreferenceController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(ApiAuthController::class)->prefix("auth")->group(function(){
@@ -13,12 +14,17 @@ Route::controller(ApiAuthController::class)->prefix("auth")->group(function(){
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('user', 'getUser');
         Route::get('logout', 'logout');
-        Route::post('change-password', 'changePassword');
-        Route::post('update-profile', 'updateProfile');
+        Route::put('change-password', 'changePassword');
+        Route::put('update-profile', 'updateProfile');
     });
 });
 
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::apiResource('articles', ArticleController::class);
-});
+Route::apiResource('articles', ArticleController::class);
 
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('preferences')->group(function () {
+        Route::get('/', [UserPreferenceController::class, 'getPreferences']);
+        Route::put('/', [UserPreferenceController::class, 'updatePreferences']);
+        Route::get('/feed', [UserPreferenceController::class, 'getPersonalizedFeed']);
+    });
+});
