@@ -121,6 +121,7 @@ wait_for_mysql
 
 # Install dependencies
 print_message "Installing dependencies..."
+docker compose exec app chown -R www-data:www-data /var/www
 docker compose exec app chown -R www-data:www-data storage
 docker compose exec app mkdir /root/.config/
 docker compose exec app mkdir /root/.config/composer
