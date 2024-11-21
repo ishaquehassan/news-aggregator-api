@@ -131,24 +131,24 @@ check_status
 
 # Generate application key
 print_message "Generating application key..."
-docker compose exec -u docker app php artisan key:generate
+docker compose exec app php artisan key:generate
 check_status
 
 # Run migrations
 print_message "Running migrations..."
-docker compose exec -u docker app php artisan migrate
+docker compose exec app php artisan migrate
 check_status
 
 # Clear caches
 print_message "Clearing caches..."
-docker compose exec -u docker app php artisan cache:clear
-docker compose exec -u docker app php artisan config:clear
-docker compose exec -u docker app php artisan view:clear
+docker compose exec app php artisan cache:clear
+docker compose exec app php artisan config:clear
+docker compose exec app php artisan view:clear
 check_status
 
 # Create storage link
 print_message "Creating storage link..."
-docker compose exec -u docker app php artisan storage:link
+docker compose exec app php artisan storage:link
 check_status
 
 # Display information
