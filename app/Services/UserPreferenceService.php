@@ -60,4 +60,9 @@ readonly class UserPreferenceService
 
         return $this->articleRepository->paginate($perPage, $filters);
     }
+
+    public function getPreferenceOptions(): object
+    {
+        return $this->preferenceRepository->getPreferenceOptions();
+    }
 }

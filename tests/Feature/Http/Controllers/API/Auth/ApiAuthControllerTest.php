@@ -178,7 +178,7 @@ it('fails to log out when unauthenticated', function () {
 it('changes the user password', function () {
     Sanctum::actingAs($this->user);
 
-    $response = $this->postJson('/api/auth/change-password', [
+    $response = $this->putJson('/api/auth/change-password', [
         'current_password' => 'password',
         'password' => 'newpassword',
         'password_confirmation' => 'newpassword',
@@ -196,7 +196,7 @@ it('changes the user password', function () {
 it('fails to change the password with incorrect current password', function () {
     Sanctum::actingAs($this->user);
 
-    $response = $this->postJson('/api/auth/change-password', [
+    $response = $this->putJson('/api/auth/change-password', [
         'current_password' => 'wrongpassword',
         'password' => 'newpassword',
         'password_confirmation' => 'newpassword',
@@ -212,7 +212,7 @@ it('fails to change the password with incorrect current password', function () {
 it('updates the user profile', function () {
     Sanctum::actingAs($this->user);
 
-    $response = $this->postJson('/api/auth/update-profile', [
+    $response = $this->putJson('/api/auth/update-profile', [
         'name' => 'Updated Name',
         'email' => 'updated@example.com',
     ]);

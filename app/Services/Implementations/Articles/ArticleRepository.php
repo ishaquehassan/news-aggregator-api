@@ -3,13 +3,14 @@ namespace App\Services\Implementations\Articles;
 
 use App\Contracts\Articles\ArticleRepositoryInterface;
 use App\Models\Article;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 
 class ArticleRepository implements ArticleRepositoryInterface
 {
     public function paginate(int $perPage = 15, array $filters = []): object
     {
-        $query = Article::with(['user', 'category','author']);
+        $query = Article::with(['category']);
 
         $query = $this->applyFilters($query, $filters);
 
@@ -18,7 +19,7 @@ class ArticleRepository implements ArticleRepositoryInterface
 
     public function findById(int $id): ?object
     {
-        return Article::with(['user', 'category'])->find($id);
+        return Article::with(['category'])->find($id);
     }
 
     /**
@@ -47,23 +48,35 @@ class ArticleRepository implements ArticleRepositoryInterface
         }
 
         if (!empty($filters['author'])) {
-            $query->where('author', $filters['author']);
+            if(is_array($filters['author'])){
+                $query->orWhereIn('author', $filters['author']);
+            }else{
+                $query->where('author', $filters['author']);
+            }
         }
 
         if (!empty($filters['category'])) {
-            $query->where('category_id', $filters['category']);
+            if(is_array($filters['category'])){
+                $query->orWhereIn('category_id', $filters['category']);
+            }else{
+                $query->where('category_id', $filters['category']);
+            }
         }
 
         if (!empty($filters['source'])) {
-            $query->where('source', $filters['source']);
+            if(is_array($filters['source'])){
+                $query->orWhereIn('source', $filters['source']);
+            }else{
+                $query->where('source', $filters['source']);
+            }
         }
 
         if (!empty($filters['date_from'])) {
-            $query->where('published_at', '>=', $filters['date_from']);
+            $query->where('published_at', '>=', Carbon::parse($filters['date_from'])->startOfDay());
         }
 
         if (!empty($filters['date_to'])) {
-            $query->where('published_at', '<=', $filters['date_to']);
+            $query->where('published_at', '<=', Carbon::parse($filters['date_to'])->endOfDay());
         }
 
         return $query;

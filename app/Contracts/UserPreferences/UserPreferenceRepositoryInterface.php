@@ -13,4 +13,9 @@ interface UserPreferenceRepositoryInterface
     public function update(object $preference, array $data): bool;
 
     public function firstOrCreate(User $user): object;
+
+    /**
+     * @return object
+     */
+    public function getPreferenceOptions(): object;
 }

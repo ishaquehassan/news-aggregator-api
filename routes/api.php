@@ -28,3 +28,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/feed', [UserPreferenceController::class, 'getPersonalizedFeed']);
     });
 });
+
+Route::prefix('preferences')->group(function () {
+    Route::get('/options', [UserPreferenceController::class, 'getPreferenceOptions']);
+});

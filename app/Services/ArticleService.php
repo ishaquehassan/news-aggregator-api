@@ -28,7 +28,7 @@ readonly class ArticleService
         return $article;
     }
 
-    public function createArticle(Article $data): object
+    public function createArticle(Article $data): bool
     {
         return $this->articleRepository->create($data);
     }

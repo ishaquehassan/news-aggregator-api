@@ -26,8 +26,8 @@ interface ArticleRepositoryInterface
     /**
      * Create a new article
      *
-     * @param array $data
-     * @return object
+     * @param Article $article
+     * @return bool
      */
     public function create(Article $article): bool;
 }
