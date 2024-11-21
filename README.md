@@ -1,66 +1,175 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# News Aggregator API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A robust Laravel-based API that aggregates news from multiple sources into a unified endpoint. The system fetches, normalizes, and serves news articles from various providers while handling rate limiting, caching, and data consistency.
 
-## About Laravel
+## 🌟 Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Aggregates news from multiple providers:
+    - [NewsAPI.org](https://newsapi.org/)
+    - [The Guardian](https://open-platform.theguardian.com/)
+    - [NewsData.io](https://newsdata.io/)
+    - [TheNewsAPI](https://www.thenewsapi.com/)
+    - [WorldNewsAPI](https://worldnewsapi.com/)
+- Automated article fetching via scheduler
+- Rate limiting and caching
+- Unified response format
+- Category-based filtering
+- Search functionality
+- Docker containerization
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📝 API Documentation
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Complete API documentation is available on Postman:
+[API Documentation](https://documenter.getpostman.com/view/545561/2sAYBPnEx3)
 
-## Learning Laravel
+## 🗂️ Project Structure
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```
+app/
+├── Console
+│   └── Commands              # Custom Artisan commands
+├── Contracts
+│   ├── Articles             # Article-related interfaces
+│   ├── Auth                 # Authentication interfaces
+│   └── UserPreferences     # User preferences interfaces
+├── Helpers                  # Helper functions
+├── Http
+│   ├── Controllers
+│   │   ├── API
+│   │   │   ├── Articles
+│   │   │   ├── Auth
+│   │   │   └── UserPreferences
+│   │   └── Auth
+│   ├── Requests
+│   │   └── UserPreferences
+│   └── Resources
+├── Jobs
+│   └── News                # News fetching jobs
+├── Models                  # Eloquent models
+├── Providers              # Service providers
+└── Services
+    └── Implementations
+        ├── Articles        # News service implementations
+        ├── Auth           # Authentication services
+        └── UserPreferences # User preferences services
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🚀 Quick Setup
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Prerequisites
 
-## Laravel Sponsors
+- Docker Desktop
+- Git
+- Composer (for local development)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Installation
 
-### Premium Partners
+1. Clone the repository
+```bash
+git clone <repository-url>
+cd news-aggregator
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+2. Run the setup script
+```bash
+chmod +x setup.sh
+./setup.sh
+```
 
-## Contributing
+The setup script will:
+- Configure the environment
+- Start Docker containers
+- Install dependencies
+- Run migrations
+- Generate application key
+- Set up the scheduler
+- Fetch initial articles
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Manual Setup
 
-## Code of Conduct
+If you prefer manual setup:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. Copy environment file
+```bash
+cp .env.example .env
+```
 
-## Security Vulnerabilities
+2. Start Docker containers
+```bash
+docker compose up -d
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+3. Install dependencies
+```bash
+docker compose exec app composer install
+```
 
-## License
+4. Generate application key
+```bash
+docker compose exec app php artisan key:generate
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+5. Run migrations
+```bash
+docker compose exec app php artisan migrate
+```
+
+6. Create storage link
+```bash
+docker compose exec app php artisan storage:link
+```
+
+## 🔧 Configuration
+
+The application uses the following ports:
+- API: `http://localhost:8000`
+- MySQL: `localhost:3306`
+
+Default database configuration:
+- Database: `news_aggregator_api`
+- Username: `root`
+- Password: none
+
+## 📋 Available Commands
+
+Fetch articles from news services:
+```bash
+# Show options to fetch from
+docker compose exec app php artisan articles:fetch
+
+# Fetch from all services
+docker compose exec app php artisan articles:fetch --all
+
+# Fetch from specific service
+docker compose exec app php artisan articles:fetch newsapi.org
+```
+
+Run tests:
+```bash
+docker compose exec app php artisan test
+```
+
+View logs:
+```bash
+docker compose logs -f
+docker compose logs -f scheduler
+```
+
+## 🔒 Security
+
+- Rate limiting is implemented for all API endpoints
+- Request validation and sanitization
+- Error handling and logging
+- API authentication ready (if needed)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
+
+## 📜 License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details.
