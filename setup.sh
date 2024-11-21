@@ -121,7 +121,11 @@ wait_for_mysql
 
 # Install dependencies
 print_message "Installing dependencies..."
-docker compose exec -u docker app composer install
+docker compose exec app chown -R www-data:www-data storage
+docker compose exec app mkdir /root/.config/
+docker compose exec app mkdir /root/.config/composer
+docker compose exec app chown -R "$(id -un)" "$(composer config --global home)"
+docker compose exec app composer install
 check_status
 
 # Generate application key
