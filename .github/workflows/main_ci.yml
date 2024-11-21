@@ -62,4 +62,4 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          script: cd ${{ secrets.PROJECT_PATH_PROD }} && chmod +x setup.sh && ./setup.sh
+          script: cd ${{ secrets.PROJECT_PATH_PROD }} && git pull origin main && git checkout -- . && chmod +x setup.sh && ./setup.sh
