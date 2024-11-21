@@ -1,0 +1,8 @@
+FROM php:8.2-cli
+
+RUN apt-get update && apt-get install -y cron
+RUN docker-php-ext-install pdo pdo_mysql
+
+WORKDIR /var/www
+
+CMD bash -c "rm -f /var/run/crond.pid && cron && while true; do sleep 1; done"

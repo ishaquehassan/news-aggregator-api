@@ -55,8 +55,7 @@ abstract class BaseNewsAPIJob implements ShouldQueue
                 }
 
                 if (!getNestedValue($article, $articleMapping['content'], $articleMappingProcessors['content'])) {
-                    print_r($articleMapping);
-                    die(json_encode($article));
+                    continue;
                 }
 
                 $category = Category::firstOrCreate(['name' => getNestedValue($article, $articleMapping['category'] ?? '') ?? $this->category]);
