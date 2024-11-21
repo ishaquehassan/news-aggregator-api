@@ -46,12 +46,14 @@ test('it respects per page parameter', function() {
 test('it filters articles by keyword', function() {
     // Create articles with specific content
     $matchingTitle = Article::factory()->create([
-        'title' => 'Test Article One'
+        'title' => 'Test Article One',
+        'published_at' => now()->subDay() // Make this older
     ]);
 
     $matchingContent = Article::factory()->create([
         'title' => 'Regular Title',
-        'content' => 'This is a test content'
+        'content' => 'This is a test content',
+        'published_at' => now() // Make this newer
     ]);
 
     $nonMatching = Article::factory()->create([
@@ -67,12 +69,12 @@ test('it filters articles by keyword', function() {
             'data' => [
                 'data' => [
                     [
-                        'id' => $matchingTitle->id,
-                        'title' => 'Test Article One'
-                    ],
-                    [
                         'id' => $matchingContent->id,
                         'title' => 'Regular Title'
+                    ],
+                    [
+                        'id' => $matchingTitle->id,
+                        'title' => 'Test Article One'
                     ]
                 ]
             ]
