@@ -32,7 +32,4 @@ RUN mkdir -p /home/docker/.composer && \
 # Set working directory
 WORKDIR /var/www
 
-# Switch to non-root user for most operations
-USER docker
-
 CMD ["php-fpm"]
