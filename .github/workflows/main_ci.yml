@@ -55,3 +55,11 @@ jobs:
           DB_USERNAME: root
           DB_PASSWORD: null
         run: php artisan test
+
+      - name: Push to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: cd ${{ secrets.PROJECT_PATH_PROD }} && chmod +x setup.sh && ./setup.sh
